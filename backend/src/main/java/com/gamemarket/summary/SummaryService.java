@@ -4,14 +4,15 @@ import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
 import com.gamemarket.review.Reviews;
+import com.gamemarket.summary.dto.SummaryDto;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -19,7 +20,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
-import com.gamemarket.summary.dto.SummaryDto;
 
 /** The only place that branches on summary.mode. */
 @Service

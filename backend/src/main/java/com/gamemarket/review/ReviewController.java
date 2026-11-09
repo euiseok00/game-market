@@ -2,13 +2,13 @@ package com.gamemarket.review;
 
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
+import com.gamemarket.review.dto.ReviewsDto;
 import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import com.gamemarket.review.dto.ReviewsDto;
 
 /** The reviews a summary is built from, so users can read them next to the AI summary. */
 @RestController

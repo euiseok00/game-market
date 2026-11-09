@@ -2,9 +2,9 @@ spring:
   application:
     name: game-market
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5432/gamemarket}
-    username: ${DB_USER:gamemarket}
-    password: ${DB_PASSWORD:gamemarket}
+    url: ${GAMEMARKET_DB_URL:jdbc:postgresql://localhost:5433/gamemarket}
+    username: ${GAMEMARKET_DB_USER:gamemarket}
+    password: ${GAMEMARKET_DB_PASSWORD:gamemarket}
   jpa:
     hibernate:
       ddl-auto: update
@@ -16,7 +16,7 @@ spring:
       genai:
         api-key: ${GEMINI_API_KEY:}
         chat:
-          model: ${GEMINI_MODEL:gemini-2.5-flash-lite}
+          model: ${GEMINI_MODEL:gemini-3.5-flash-lite}
           response-mime-type: application/json
           temperature: 0.2
 

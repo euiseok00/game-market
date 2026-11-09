@@ -1,10 +1,22 @@
 # Game Market
 
+[![CI](https://github.com/euiseok00/game-market/actions/workflows/ci.yml/badge.svg)](https://github.com/euiseok00/game-market/actions/workflows/ci.yml)
+
 가상 게임 스토어(검색·장바구니·모의 구매·라이브러리)에 **Steam 리뷰 AI 요약(Gemini)** 과 **브라우저 음성 읽기(TTS)** 를 붙이고, 요약 생성 방식 3단계(none / lazy / warm)의 응답 시간을 측정한 포트폴리오 프로젝트입니다. 설계 문서: [`MVP.md`](MVP.md)
 
 - 백엔드: Java 21, Spring Boot 4.1.2, Spring Security(BCrypt, 세션), Spring Data JPA, PostgreSQL, Spring AI 2.0.2 (`spring-ai-starter-model-google-genai`)
 - 프론트: React + TypeScript + Vite (UI와 `speechSynthesis`만 담당)
 - 모델: `gemini-3.5-flash-lite` (Gemini API 무료 티어). 유료 호출로 자동 전환하지 않습니다.
+
+## 화면
+
+| 스토어 | 게임 상세 + AI 리뷰 요약 |
+|---|---|
+| ![스토어](docs/screenshots/1-store.png) | ![게임 상세와 AI 리뷰 요약](docs/screenshots/2-detail-summary.png) |
+| **장바구니** | **구매 완료 / 내 라이브러리** |
+| ![장바구니](docs/screenshots/3-cart.png) | ![라이브러리](docs/screenshots/4-library.png) |
+
+요약 아래에 근거가 된 리뷰의 출처와 개수가 표시됩니다(`Steam 사용자 리뷰 N개` 또는 `시드 리뷰(예시 데이터) N개`). Steam 리뷰 API에 접근할 수 없어 현재는 시드 리뷰를 사용하며, 시드 리뷰는 템플릿으로 만든 예시 데이터라 게임마다 요약 내용이 비슷하게 나옵니다.
 
 ## 실행
 
@@ -29,7 +41,23 @@ cd backend && ./gradlew bootRun          # :8080, GEMINI_API_KEY 환경변수 �
 cd frontend && npm install && npm run dev # :5173, /api 프록시
 ```
 
-테스트: `cd backend && ./gradlew test` (Testcontainers, Docker 필요) / `cd frontend && npm test`
+### 테스트
+
+```bash
+cd backend && ./gradlew test   # 단위·통합 테스트 (Testcontainers, Docker 필요)
+cd frontend && npm test        # 컴포넌트 테스트 (Vitest)
+
+# E2E (Playwright): 실행 중인 스택을 대상으로 합니다. 기본 http://localhost:3000
+docker compose up -d --build
+cd frontend && npx playwright install chromium && npm run e2e
+# 다른 주소: E2E_BASE_URL=http://localhost:5173 npm run e2e
+```
+
+E2E는 가입 → 검색 → 장바구니 → 모의 구매 → 라이브러리 흐름, 요약 패널(장점·단점·출처 표시, 음성 재생/중지, 503 오류, 음성 미지원 시 비활성화), 비로그인 리다이렉트를 확인합니다. Gemini 키나 무료 한도에 의존하지 않도록 요약 API와 `speechSynthesis`는 E2E에서 스텁으로 대체합니다(실제 요약 경로는 백엔드 테스트가 검증).
+
+README 스크린샷 다시 찍기(실제 Gemini 키로 실행 중인 스택 필요): `cd frontend && SCREENSHOTS=1 npx playwright test screenshots`
+
+GitHub Actions(`.github/workflows/ci.yml`)가 push·PR마다 백엔드 테스트, 프론트 타입체크·테스트·빌드, Docker Compose 스택 대상 E2E를 실행합니다.
 
 ### 설정
 

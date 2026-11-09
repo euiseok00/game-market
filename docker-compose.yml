@@ -6,9 +6,33 @@ services:
       POSTGRES_USER: gamemarket
       POSTGRES_PASSWORD: gamemarket
     ports:
-      - "5433:5432"
+      - "5433:5432" # 5432 is often taken by a native PostgreSQL install
     volumes:
       - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U gamemarket -d gamemarket"]
+      interval: 3s
+      retries: 20
+
+  backend:
+    build: ./backend
+    environment:
+      GAMEMARKET_DB_URL: jdbc:postgresql://postgres:5432/gamemarket
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-not-set}
+      GEMINI_MODEL: ${GEMINI_MODEL:-gemini-3.5-flash-lite}
+      SUMMARY_MODE: ${SUMMARY_MODE:-lazy}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8080:8080"
+
+  frontend:
+    build: ./frontend
+    depends_on:
+      - backend
+    ports:
+      - "3000:80"
 
 volumes:
   pgdata:

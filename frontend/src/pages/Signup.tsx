@@ -14,13 +14,18 @@ export default function Signup() {
     e.preventDefault()
     try {
       await authApi.signup(username, password)
-      await authApi.login(username, password)
-      await refresh()
-      navigate('/')
     } catch (err) {
       if (err instanceof ApiError && err.status === 409) setError('이미 사용 중인 아이디입니다.')
       else if (err instanceof ApiError && err.status === 400) setError('아이디와 비밀번호를 확인해 주세요. (비밀번호는 72바이트 이하)')
       else setError('가입하지 못했습니다.')
+      return
+    }
+    try {
+      await authApi.login(username, password)
+      await refresh()
+      navigate('/')
+    } catch {
+      navigate('/login', { state: { notice: '가입되었습니다. 로그인해 주세요.' } })
     }
   }
 

@@ -57,6 +57,17 @@ describe('SummaryPanel', () => {
     expect(screen.getByText(/생성 시각/)).toBeInTheDocument()
   })
 
+  it('renders duplicate items without key warnings', async () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => {})
+    const release = respond(200, { ...summary, pros: ['재미있다', '재미있다'] })
+    render(<SummaryPanel gameId={1} />)
+    await userEvent.click(screen.getByRole('button', { name: 'AI 리뷰 요약 보기' }))
+    release()
+    expect(await screen.findAllByText('재미있다')).toHaveLength(2)
+    expect(consoleError.mock.calls.flat().join(' ')).not.toMatch(/same key/i)
+    consoleError.mockRestore()
+  })
+
   it('shows error message on 503', async () => {
     const release = respond(503, { code: 'SUMMARY_UNAVAILABLE', message: 'AI 요약을 지금 만들 수 없습니다.' })
     render(<SummaryPanel gameId={1} />)

@@ -7,12 +7,20 @@ export default function Cart() {
   const [cart, setCart] = useState<CartData | null>(null)
   const [error, setError] = useState('')
   const [busy, setBusy] = useState(false)
+  const [actionError, setActionError] = useState('')
 
   useEffect(() => {
     cartApi.get().then(setCart).catch(() => setError('장바구니를 불러오지 못했습니다.'))
   }, [])
 
-  const remove = async (gameId: number) => setCart(await cartApi.remove(gameId))
+  const remove = async (gameId: number) => {
+    try {
+      setCart(await cartApi.remove(gameId))
+      setActionError('')
+    } catch {
+      setActionError('삭제하지 못했습니다. 다시 시도해 주세요.')
+    }
+  }
 
   const checkout = async () => {
     setBusy(true)
@@ -20,7 +28,7 @@ export default function Cart() {
       const order = await orderApi.checkout()
       navigate('/library', { state: { orderedTotal: order.totalKrw, orderedCount: order.items.length } })
     } catch (e) {
-      setError(e instanceof ApiError && e.status === 409 ? '이미 보유한 게임이 있습니다.' : '구매하지 못했습니다.')
+      setActionError(e instanceof ApiError && e.status === 409 ? '이미 보유한 게임이 있습니다.' : '구매하지 못했습니다.')
     } finally {
       setBusy(false)
     }
@@ -32,6 +40,7 @@ export default function Cart() {
   return (
     <section>
       <h1>장바구니</h1>
+      {actionError && <p className="error" role="alert">{actionError}</p>}
       {cart.items.length === 0 ? (
         <p className="muted">
           장바구니가 비어 있습니다. <Link to="/">스토어 둘러보기</Link>

@@ -35,7 +35,7 @@ cd frontend && npm install && npm run dev # :5173, /api 프록시
 
 | 환경변수 | 기본값 | 설명 |
 |---|---|---|
-| `GEMINI_API_KEY` | (없음) | Gemini API 키. 저장소에 커밋하지 않습니다. |
+| `GEMINI_API_KEY` | `not-set` | Gemini API 키. 저장소에 커밋하지 않습니다. 미설정 시 앱은 뜨고 요약만 503 |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` | 요약 모델 |
 | `SUMMARY_MODE` | `lazy` | `none` / `lazy` / `warm` (`summary.mode`) |
 | `GAMEMARKET_DB_URL` / `_USER` / `_PASSWORD` | `jdbc:postgresql://localhost:5433/gamemarket`, `gamemarket`, `gamemarket` | DB 연결 |
@@ -65,7 +65,7 @@ cd frontend && npm install && npm run dev # :5173, /api 프록시
 ## 오류 처리
 
 - 같은 게임에 요약 요청이 동시에 들어오면 한 번만 생성합니다(게임별 single-flight + `review_summary.game_id` unique 제약).
-- Gemini 429 응답은 지수 백오프(1s, 2s, 4s)로 최대 3회 재시도합니다. 잘못된 JSON이나 빈 응답은 재시도하지 않습니다. 모두 `503 {code:"SUMMARY_UNAVAILABLE"}`로 응답하고 요약 행은 저장하지 않습니다. Spring AI 내장 재시도는 `spring.ai.retry.max-attempts=1`로 껐습니다.
+- Gemini 429·5xx 응답은 지수 백오프(1s, 2s, 4s)로 최대 3회 재시도합니다. 잘못된 JSON, 빈 응답, 비어 있는 장점·단점, 20초 타임아웃(`summary.llm-timeout-ms`)은 재시도하지 않습니다. 같은 게임 생성을 기다리는 요청은 최대 60초(`summary.wait-timeout-ms`) 후 503을 받습니다. 모두 `503 {code:"SUMMARY_UNAVAILABLE"}`로 응답하고 요약 행은 저장하지 않습니다. Spring AI 내장 재시도는 `spring.ai.retry.max-attempts=1`로 껐습니다.
 - 한국어 음성이 없거나 `speechSynthesis`를 지원하지 않는 브라우저에서는 재생 버튼이 비활성화되고 안내 문구가 나옵니다.
 
 ## MVP 완료 기준 (`MVP.md` 10장)

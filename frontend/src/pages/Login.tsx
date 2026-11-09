@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useLocation, useNavigate, useSearchParams } from 'react-router-dom'
 import { ApiError, authApi } from '../api'
 import { useAuth } from '../auth'
 
@@ -10,6 +10,7 @@ export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
+  const notice = (useLocation().state as { notice?: string } | null)?.notice
 
   const next = params.get('next')
   const safeNext = next && next.startsWith('/') && !next.startsWith('//') ? next : '/'
@@ -28,6 +29,7 @@ export default function Login() {
   return (
     <form className="auth-form" onSubmit={onSubmit}>
       <h1>로그인</h1>
+      {notice && <p className="notice" role="status">{notice}</p>}
       <label>
         아이디
         <input value={username} onChange={(e) => setUsername(e.target.value)} autoComplete="username" required />

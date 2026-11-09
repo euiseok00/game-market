@@ -46,11 +46,11 @@ export default function SummaryPanel({ gameId }: { gameId: number }) {
           <div className="summary-cols">
             <div>
               <h3>장점</h3>
-              <ul>{state.summary.pros.map((p) => <li key={p}>{p}</li>)}</ul>
+              <ul>{state.summary.pros.map((p, i) => <li key={i}>{p}</li>)}</ul>
             </div>
             <div>
               <h3>단점</h3>
-              <ul>{state.summary.cons.map((c) => <li key={c}>{c}</li>)}</ul>
+              <ul>{state.summary.cons.map((c, i) => <li key={i}>{c}</li>)}</ul>
             </div>
           </div>
           <h3>총평</h3>

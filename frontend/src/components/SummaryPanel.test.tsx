@@ -75,7 +75,7 @@ describe('SummaryPanel', () => {
     render(<SummaryPanel gameId={1} />)
     await userEvent.click(screen.getByRole('button', { name: 'AI 리뷰 요약 보기' }))
     release()
-    expect(await screen.findByText(/시드 리뷰\(예시 데이터\) 6개 기반/)).toBeInTheDocument()
+    expect(await screen.findByText(/예시 리뷰 6개 기반/)).toBeInTheDocument()
   })
 
   it('labels steam reviews', async () => {

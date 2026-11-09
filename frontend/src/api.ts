@@ -20,6 +20,8 @@ export type Summary = {
   reviewCount: number | null
 }
 
+export type GameReviews = { source: 'steam' | 'seed'; reviews: string[] }
+
 export class ApiError extends Error {
   status: number
   constructor(status: number, message: string) {
@@ -67,6 +69,7 @@ export const gamesApi = {
   },
   get: (id: string | number) => api<Game>(`/api/games/${id}`),
   summary: (id: string | number) => api<Summary>(`/api/games/${id}/summary`),
+  reviews: (id: string | number) => api<GameReviews>(`/api/games/${id}/reviews`),
 }
 
 export const authApi = {

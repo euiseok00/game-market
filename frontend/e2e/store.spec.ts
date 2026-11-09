@@ -48,6 +48,14 @@ async function signup(page: Page) {
   return username
 }
 
+test('anyone can read the example reviews on a game page', async ({ page }) => {
+  await page.goto('/')
+  await page.getByRole('heading', { name: 'Portal 2' }).click()
+  await expect(page.getByRole('heading', { name: '사용자 리뷰 8개' })).toBeVisible()
+  await expect(page.getByText('포탈 퍼즐 설계가 영리하다. 풀었을 때 무릎을 탁 치게 된다.')).toBeVisible()
+  await expect(page.getByText(/데모용 예시 리뷰입니다/)).toBeVisible()
+})
+
 test('signup, search, cart, mock checkout, library', async ({ page }) => {
   await signup(page)
 
@@ -85,7 +93,7 @@ test('summary panel shows pros, cons, source and reads it aloud', async ({ page 
   await expect(page.getByText('전투 손맛이 좋다')).toBeVisible()
   await expect(page.getByText('후반부가 짧다')).toBeVisible()
   await expect(page.getByText('할인 때 꼭 해볼 만한 게임이다.')).toBeVisible()
-  await expect(page.getByText('시드 리뷰(예시 데이터) 6개 기반 요약')).toBeVisible()
+  await expect(page.getByText('예시 리뷰 6개 기반 요약')).toBeVisible()
 
   await page.getByRole('button', { name: '음성 재생' }).click()
   const spoken = await page.evaluate(() => (window as unknown as { __spoken: string[] }).__spoken)

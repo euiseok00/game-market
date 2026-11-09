@@ -10,7 +10,7 @@ const speechText = (s: Summary) =>
 /** Says what the summary rests on; seed reviews are sample data because Steam's review API is not reachable. */
 const sourceLabel = (s: Summary) => {
   if (!s.reviewSource) return ''
-  const what = s.reviewSource === 'steam' ? 'Steam 사용자 리뷰' : '시드 리뷰(예시 데이터)'
+  const what = s.reviewSource === 'steam' ? 'Steam 사용자 리뷰' : '예시 리뷰'
   return `${what} ${s.reviewCount ?? 0}개 기반 요약`
 }
 

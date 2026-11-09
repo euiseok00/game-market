@@ -16,7 +16,7 @@
 | **장바구니** | **구매 완료 / 내 라이브러리** |
 | ![장바구니](docs/screenshots/3-cart.png) | ![라이브러리](docs/screenshots/4-library.png) |
 
-요약 아래에 근거가 된 리뷰의 출처와 개수가 표시됩니다(`Steam 사용자 리뷰 N개` 또는 `시드 리뷰(예시 데이터) N개`). Steam 리뷰 API에 접근할 수 없어 현재는 시드 리뷰를 사용하며, 시드 리뷰는 템플릿으로 만든 예시 데이터라 게임마다 요약 내용이 비슷하게 나옵니다.
+게임 상세 화면에서 요약의 근거가 된 리뷰 목록을 누구나 볼 수 있고(`GET /api/games/{id}/reviews`), 요약 아래에는 리뷰 출처와 개수가 표시됩니다(`Steam 사용자 리뷰 N개` 또는 `예시 리뷰 N개`). Steam 리뷰 API에 접근할 수 없어 현재는 **게임마다 직접 작성한 예시 리뷰 8개**(`seed/reviews.json`, 실제 사용자 리뷰 아님)를 사용합니다. 이 프로젝트의 핵심은 리뷰를 확인하고 그 요약을 음성으로 듣는 흐름이라, 리뷰는 각 게임의 실제 특징을 반영한 데모 데이터로 충분하다고 판단했습니다.
 
 ## 실행
 
@@ -75,7 +75,7 @@ GitHub Actions(`.github/workflows/ci.yml`)가 push·PR마다 백엔드 테스트
 
 ## 요약 응답 시간 (A/B/C)
 
-[`docs/benchmark.md`](docs/benchmark.md)에 전체 표가 있습니다. 2026-11-09 측정, 게임 25개 × 3회, `summary_log.total_ms` 기준:
+[`docs/benchmark.md`](docs/benchmark.md)에 전체 표가 있습니다(예시 리뷰 교체 전 템플릿 시드로 측정, 시간 비교에는 영향 없음). 2026-11-09 측정, 게임 25개 × 3회, `summary_log.total_ms` 기준:
 
 | 단계 | 방식 | 평균 (ms) | p95 (ms) |
 |---|---|---:|---:|
@@ -88,7 +88,7 @@ GitHub Actions(`.github/workflows/ci.yml`)가 push·PR마다 백엔드 테스트
 
 ## Steam 리뷰 엔드포인트 상태
 
-2026-11-09에 Java `RestClient`로 `https://store.steampowered.com/appreviews/{appid}?json=1`를 호출하면 `302 FOUND text/html`(스토어 홈으로 리다이렉트)이 돌아와 JSON을 받을 수 없었습니다. 헤더 위장은 하지 않으므로 **현재는 시드 리뷰를 사용합니다** (`backend/src/main/resources/seed/reviews.json`, 가짜 데이터). `FallbackReviewSource`가 Steam 호출이 실패하거나, JSON이 아니거나, 리뷰가 0건이면 자동으로 시드로 넘어갑니다. 게임 메타데이터(이름·장르·이미지·설명)는 `appdetails`(`l=koreana&cc=kr`)에서 한 번 받아 `seed/games.json`에 저장했고, 가격은 모의값입니다.
+2026-11-09에 Java `RestClient`로 `https://store.steampowered.com/appreviews/{appid}?json=1`를 호출하면 `302 FOUND text/html`(스토어 홈으로 리다이렉트)이 돌아와 JSON을 받을 수 없었습니다. 헤더 위장은 하지 않으므로 **현재는 시드 리뷰를 사용합니다** (`backend/src/main/resources/seed/reviews.json`, 게임별 예시 리뷰). `FallbackReviewSource`가 Steam 호출이 실패하거나, JSON이 아니거나, 리뷰가 0건이면 자동으로 시드로 넘어갑니다. 게임 메타데이터(이름·장르·이미지·설명)는 `appdetails`(`l=koreana&cc=kr`)에서 한 번 받아 `seed/games.json`에 저장했고, 가격은 모의값입니다.
 
 ## 오류 처리
 

@@ -1,0 +1,202 @@
+[
+  {
+    "steamAppId": 730,
+    "name": "Counter-Strike 2",
+    "genre": "액션",
+    "priceKrw": 0,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/730/162664aa5da85f418105350c5d67ca565f6c3713/header.jpg?t=1793054556",
+    "description": "Counter-Strike는 20년이 넘는 시간 동안 전 세계 수백만 명의 플레이어가 모여 수준 높은 경쟁을 펼칠 수 있는 플랫폼을 제공해 왔습니다. 그리고 이제 곧 Counter-Strike 2와 함께 새로운 CS 시대의 막이 열립니다."
+  },
+  {
+    "steamAppId": 570,
+    "name": "Dota 2",
+    "genre": "액션",
+    "priceKrw": 0,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/570/header.jpg?t=1791407503",
+    "description": "매일, 전 세계 수백 만의 플레이어가 백여 명의 도타 영웅 중 하나가 되어 전장에 뛰어듭니다. 10시간을 했든, 1,000시간을 했든 언제나 새롭게 느껴지는 무언가가 있습니다. 정기적인 업데이트로 게임플레이, 기능, 영웅이 끊임없이 진화하는 도타 2는 그 자체의 생명력으로 살아 숨 쉬는 게임입니다."
+  },
+  {
+    "steamAppId": 1091500,
+    "name": "Cyberpunk 2077",
+    "genre": "RPG",
+    "priceKrw": 66000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/ca6de5bbca893ccc5e8715b1068f6443d0918ea4/header_alt_assets_9_koreana.jpg?t=1792682505",
+    "description": "사이버펑크 2077은 권력과 돈, 끝없는 신체 개조에 집착하는 어두운 미래의 위험천만한 메갈로폴리스, '나이트 시티'를 배경으로 한 오픈 월드 액션 어드벤처 RPG입니다."
+  },
+  {
+    "steamAppId": 292030,
+    "name": "The Witcher 3: Wild Hunt — Remastered",
+    "genre": "RPG",
+    "priceKrw": 33000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/4b5b1ba5061b8a992cc69ac58b4245434edb4296/header.jpg?t=1793900434",
+    "description": "더 위쳐 3: 와일드 헌트 - 리마스터는 다양한 업그레이드와 개선 사항을 통해, 호평받은 롤플레잉 게임을 현대적으로 재탄생시켰습니다. 전문 괴물 사냥꾼 리비아의 게롤트가 되어, 양녀 시리를 찾기 위한 장대한 퀘스트를 수행하며 다크 판타지 오픈 월드를 가로지르는 여정을 떠나 보세요."
+  },
+  {
+    "steamAppId": 1245620,
+    "name": "ELDEN RING",
+    "genre": "액션",
+    "priceKrw": 64800,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/header.jpg?t=1790290043",
+    "description": "본 게임은 본격적인 다크 판타지 세계를 무대로 한 액션 RPG입니다. 드넓은 필드와 던전 탐험을 통해 미지의 것들을 발견해 보세요. 앞길을 막아서는 난관과 그것을 극복했을 때의 달성감, 그리고 등장인물들의 의도가 교착하는 군상극도 즐기실 수 있습니다."
+  },
+  {
+    "steamAppId": 413150,
+    "name": "Stardew Valley",
+    "genre": "인디",
+    "priceKrw": 16000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/413150/header.jpg?t=1786554168",
+    "description": "You've inherited your grandfather's old farm plot in Stardew Valley. Armed with hand-me-down tools and a few coins, you set out to begin your new life. Can you learn to live off the land and turn these overgrown fields into a thriving home?"
+  },
+  {
+    "steamAppId": 105600,
+    "name": "Terraria",
+    "genre": "액션",
+    "priceKrw": 10500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/105600/header.jpg?t=1792530636",
+    "description": "Dig, fight, explore, build! Nothing is impossible in this action-packed adventure game. Four Pack also available!"
+  },
+  {
+    "steamAppId": 1145360,
+    "name": "Hades",
+    "genre": "액션",
+    "priceKrw": 22000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1145360/header.jpg?t=1758127023",
+    "description": "Bastion, Transistor, Pyre의 제작사에서 선보이는 이 로그라이크 던전 탐색형 게임에서 핵 앤 슬래시로 지하 세계를 탈출하고 죽음의 신에게 도전하세요."
+  },
+  {
+    "steamAppId": 367520,
+    "name": "Hollow Knight",
+    "genre": "액션",
+    "priceKrw": 16000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/367520/3c3489495136b26b34f8a9543c7f5645b99d388c/header.jpg?t=1776125684",
+    "description": "할로우 나이트에서 자신만의 길을 구축하세요! 크게 파괴된 곤충과 영웅의 왕국을 통한 서사 액션 어드벤처입니다. 손으로 그린 클래식 2D 스타일로 구불구불한 동굴을 탐험하고 오염된 생물과 싸우고 이상한 곤충들과 친구가 되어 보세요."
+  },
+  {
+    "steamAppId": 271590,
+    "name": "Grand Theft Auto V 레거시",
+    "genre": "액션",
+    "priceKrw": 33000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/header.jpg?t=1765387725",
+    "description": "PC용 Grand Theft Auto V는 각종 수상에 빛나는 로스 산토스와 블레인 카운티의 거대한 세상을 최대 4K 이상의 해상도로 둘러볼 수 있는 기회를 플레이어에게 제공하며, 초당 60프레임으로 게임을 실행할 수도 있습니다."
+  },
+  {
+    "steamAppId": 1174180,
+    "name": "Red Dead Redemption 2",
+    "genre": "액션",
+    "priceKrw": 66000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg?t=1759502961",
+    "description": "아서 모건과 반 더 린드 갱단은 도주 중인 무법자입니다. 정부 요원과 현상금 사냥꾼들에게 추격당하는 그들은 살아남기 위해 강도질과 도둑질, 싸움을 거듭하며 미국의 험난한 심장부를 달려 나갑니다."
+  },
+  {
+    "steamAppId": 814380,
+    "name": "Sekiro™: Shadows Die Twice - GOTY Edition",
+    "genre": "액션",
+    "priceKrw": 64800,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/814380/header.jpg?t=1762888662",
+    "description": "Dark Souls 시리즈를 개발한 FromSoftware의 새로운 어드벤처에서 복수를 향한 자신만의 길을 개척해보십시오. 복수하십시오. 명예를 회복하십시오. 무사답게 싸우십시오."
+  },
+  {
+    "steamAppId": 374320,
+    "name": "DARK SOULS™ III",
+    "genre": "액션",
+    "priceKrw": 48800,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/374320/header.jpg?t=1748630784",
+    "description": "장르를 새로 개척했다는 평가를 들으며 많은 좋은 평가들을 얻고 있는 다크 소울 시리즈는 계속해서 한계를 넘어서, 더욱 야심찬 단계에 도전하고자 하고 있습니다. 준비를 하고 어둠을 밝히십시오!"
+  },
+  {
+    "steamAppId": 252950,
+    "name": "Rocket League®",
+    "genre": "액션",
+    "priceKrw": 0,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/252950/3abd9ab079c8896a4762dbe34a853d89b7f704df/header_alt_assets_17.jpg?t=1791210513",
+    "description": "수많은 팬을 거느리는 Supersonic Acrobatic Rocket-Powered Battle-Cars의 물리 기반 게임 속편에서 다시 한번 축구와 드라이빙이 만납니다!"
+  },
+  {
+    "steamAppId": 892970,
+    "name": "Valheim",
+    "genre": "액션",
+    "priceKrw": 21500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/892970/1888731b59362fca6c026cdbafa3dfffd45c3146/header_alt_assets_6.jpg?t=1791544831",
+    "description": "바이킹 문화를 기반으로 한 자동 생성 사후 세계를 배경으로 하는 1~10인 협동 탐험 및 생존 게임입니다. 전투하고, 건설하고, 정복하며 오딘의 가호 아래 전설을 만들어가세요!"
+  },
+  {
+    "steamAppId": 1086940,
+    "name": "Baldur's Gate 3",
+    "genre": "어드벤처",
+    "priceKrw": 66000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1086940/48a2fcbda8565bb45025e98fd8ebde8a7203f6a0/header.jpg?t=1777363040",
+    "description": "Baldur’s Gate 3 is a story-rich, party-based RPG set in the universe of Dungeons &amp; Dragons, where your choices shape a tale of fellowship and betrayal, survival and sacrifice, and the lure of absolute power."
+  },
+  {
+    "steamAppId": 620,
+    "name": "Portal 2",
+    "genre": "액션",
+    "priceKrw": 10500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/620/faffc0f560786e2f05104a8d2fac837c6969bf13/header.jpg?t=1790187113",
+    "description": "'지속적 실험 계획'은 친구들과 함께 협동하여 푸는 퍼즐을 디자인할 수 있도록 확장되었습니다!"
+  },
+  {
+    "steamAppId": 220,
+    "name": "Half-Life 2",
+    "genre": "액션",
+    "priceKrw": 10500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/220/header.jpg?t=1745368545",
+    "description": "점령당한 대도시인 17번 지구에서 다시 깨어난 고든 프리맨은 알릭스 밴스가 이끄는 저항군에 합류하게 됩니다. 높은 수준의 몰입감 넘치는 게임 세계, 한계를 뛰어넘는 물리적 요소, 짜릿한 전투로 가득한 기념비적인 1인칭 슈팅 게임을 경험하세요."
+  },
+  {
+    "steamAppId": 4000,
+    "name": "Garry's Mod",
+    "genre": "캐주얼",
+    "priceKrw": 10500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4000/header.jpg?t=1776868682",
+    "description": "Garry's Mod is a physics sandbox. There aren't any predefined aims or goals. We give you the tools and leave you to play."
+  },
+  {
+    "steamAppId": 646570,
+    "name": "Slay the Spire",
+    "genre": "인디",
+    "priceKrw": 27000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/646570/header.jpg?t=1774015376",
+    "description": "카드 게임이라는 장르와 로그라이크라는 장르를 합쳐, 저희가 만들 수 있는 최고의 싱글 플레이 덱 빌딩 게임을 만들었습니다. 독창적인 덱을 만들고, 기이한 적들과 조우하며, 엄청난 힘을 가진 유물을 발견하고, 첨탑을 정복해보세요!"
+  },
+  {
+    "steamAppId": 504230,
+    "name": "Celeste",
+    "genre": "액션",
+    "priceKrw": 21500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/504230/header.jpg?t=1714089525",
+    "description": "타워폴(TowerFall) 시리즈의 개발자들이 만든 이 초밀착형 플랫폼 게임을 플레이하고, 매들린이 셀레스트 산 정상으로 향하는 여정에서 내면의 악마에게서 살아남을 수 있게 도와주세요. 한땀 한땀 손수 제작한 수백 가지의 도전 과제에 맞서고, 사악한 비밀을 밝혀내고, 산에 숨겨진 수수께끼를 풀어보세요."
+  },
+  {
+    "steamAppId": 588650,
+    "name": "Dead Cells",
+    "genre": "액션",
+    "priceKrw": 27000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/588650/header.jpg?t=1779086887",
+    "description": "데드 셀(Dead Cells)는 메트로배니아에서 영감을 받은 로그라이트 액션 플랫포머 게임입니다. 2D 소울 라이트 전투에서 성을 지키는 수호자들을 물리치고 끊임없이 변화하는 거대한 성을 탐험하게 됩니다. 세이브 포인트는 없습니다. 죽이고, 죽고, 배우고, 반복하세요."
+  },
+  {
+    "steamAppId": 250900,
+    "name": "The Binding of Isaac: Rebirth",
+    "genre": "액션",
+    "priceKrw": 16000,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/250900/header.jpg?t=1731977365",
+    "description": "The Binding of Isaac: Rebirth is a randomly generated action RPG shooter with heavy Rogue-like elements. Following Isaac on his journey players will find bizarre treasures that change Isaac’s form giving him super human abilities and enabling him to fight off droves of mysterious creatures, discover secrets and fight his way to safety."
+  },
+  {
+    "steamAppId": 381210,
+    "name": "Dead by Daylight",
+    "genre": "액션",
+    "priceKrw": 21500,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/header.jpg?t=1793724618",
+    "description": "10년의 호러. 10년간 돌발적으로 급습한 공포와 아슬아슬한 순간들. 10년의 잔혹한 희생과 짜릿한 탈출. 죽음조차도 피할 수 없는 섬뜩한 악의 영역에 영원히 갇힌 네 명의 생존자는 신경과 재치를 시험하는 잔혹한 게임에서 피에 굶주린 살인마에 맞서 싸워야 합니다. 어느 편에 설지 선택하고 공포 게임 최고의 비대칭 멀티플레이어에서 긴장감과 공포의 세계로 들어가보세요."
+  },
+  {
+    "steamAppId": 578080,
+    "name": "PUBG: BATTLEGROUNDS",
+    "genre": "액션",
+    "priceKrw": 0,
+    "imageUrl": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/578080/841ea38bc58cabb70aef65365cf50bc2d79329d9/header.jpg?t=1792718193",
+    "description": "배틀로얄 유행의 시작이자, 그 정수를 보여준 PUBG: 배틀그라운드를 지금 무료로 플레이하세요! 다양한 맵에 낙하하여 무기와 보급품을 확보하고, 점점 줄어드는 블루존 속에서 끝까지 살아남아 승리를 쟁취하세요."
+  }
+]

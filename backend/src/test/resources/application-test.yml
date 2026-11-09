@@ -1,0 +1,5 @@
+spring:
+  ai:
+    google:
+      genai:
+        api-key: test-dummy-key

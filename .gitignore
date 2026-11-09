@@ -1,0 +1,9 @@
+.idea/
+build/
+.gradle/
+node_modules/
+dist/
+.env
+.env.*
+.superpowers/
+.claude/settings.local.json

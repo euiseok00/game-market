@@ -63,10 +63,10 @@ export default function Home() {
       {!loading && !error && <p className="muted">{count}개 게임</p>}
 
       <ul className="grid">
-        {games.map((g) => (
+        {games.map((g, i) => (
           <li key={g.id} className="card">
             <Link to={`/games/${g.id}`}>
-              <img src={g.imageUrl} alt="" loading="lazy" />
+              <img src={g.imageUrl} alt="" loading={i < 4 ? 'eager' : 'lazy'} fetchPriority={i === 0 ? 'high' : undefined} />
               <div className="card-body">
                 <h3>{g.name}</h3>
                 <div className="card-meta">

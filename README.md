@@ -65,7 +65,7 @@ flowchart LR
 | 테스트·CI | JUnit 5, Testcontainers, Vitest, Playwright, GitHub Actions |
 | 실행 | Docker Compose (postgres, backend, frontend+nginx) |
 
-백엔드는 기능별 패키지로 나뉜 모듈형 모놀리스입니다: `auth`, `game`, `cart`, `order`, `review`, `summary`, `bench`.
+백엔드는 기능별 패키지로 나뉜 모듈형 모놀리스입니다: `auth`, `game`, `cart`, `order`, `review`, `summary`, `bench`. 각 패키지는 컨트롤러(HTTP·세션 처리) → 서비스(규칙과 트랜잭션) → 리포지토리 순으로 나뉘고, 요청·응답 형식은 패키지 안의 `dto/`에 있습니다. 조회만 하는 `game`과 `review`는 서비스 계층 없이 컨트롤러가 리포지토리와 `ReviewSource`를 바로 씁니다.
 
 ## AI 요약이 동작하는 방식
 

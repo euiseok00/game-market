@@ -1,7 +1,14 @@
 package com.gamemarket.summary;
 
 import com.google.genai.errors.ApiException;
+import jakarta.annotation.PreDestroy;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -25,12 +32,21 @@ public class GeminiSummarizer implements Summarizer {
     private final ChatClient chat;
     private final JsonMapper json;
     private final long initialBackoffMs;
+    private final long timeoutMs;
+    private final ExecutorService calls = Executors.newVirtualThreadPerTaskExecutor();
 
     public GeminiSummarizer(ChatClient.Builder builder, JsonMapper json,
-            @Value("${summary.retry.initial-backoff-ms:1000}") long initialBackoffMs) {
+            @Value("${summary.retry.initial-backoff-ms:1000}") long initialBackoffMs,
+            @Value("${summary.llm-timeout-ms:20000}") long timeoutMs) {
         this.chat = builder.build();
         this.json = json;
         this.initialBackoffMs = initialBackoffMs;
+        this.timeoutMs = timeoutMs;
+    }
+
+    @PreDestroy
+    void shutdown() {
+        calls.shutdownNow();
     }
 
     @Override
@@ -43,26 +59,46 @@ public class GeminiSummarizer implements Summarizer {
         return parse(callWithRetry(user.toString()));
     }
 
-    /** 429 gets exponential backoff, up to MAX_RETRIES retries; any other LLM error fails at once. */
+    /**
+     * 429 and 5xx get exponential backoff, up to MAX_RETRIES retries; other errors and timeouts fail at once
+     * (a timed-out call may still be running server side, so retrying would only pile up load).
+     */
     private String callWithRetry(String userText) {
         for (int attempt = 0; ; attempt++) {
             try {
-                return chat.prompt().system(SYSTEM).user(userText).call().content();
+                return callWithTimeout(userText);
             } catch (RuntimeException e) {
-                if (!isRateLimit(e)) {
-                    throw new SummaryUnavailableException("LLM call failed", e);
+                if (!isRetryable(e)) {
+                    throw e instanceof SummaryUnavailableException s ? s
+                            : new SummaryUnavailableException("LLM call failed", e);
                 }
                 if (attempt == MAX_RETRIES) {
-                    throw new SummaryUnavailableException("LLM rate limited (429) after retries", e);
+                    throw new SummaryUnavailableException("LLM unavailable after retries", e);
                 }
                 sleep(initialBackoffMs << attempt);
             }
         }
     }
 
-    static boolean isRateLimit(Throwable e) {
+    private String callWithTimeout(String userText) {
+        Future<String> call = calls.submit(() -> chat.prompt().system(SYSTEM).user(userText).call().content());
+        try {
+            return call.get(timeoutMs, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            call.cancel(true);
+            throw new SummaryUnavailableException("LLM call timed out after " + timeoutMs + " ms", e);
+        } catch (ExecutionException e) {
+            throw e.getCause() instanceof RuntimeException re ? re : new IllegalStateException(e.getCause());
+        } catch (InterruptedException e) {
+            call.cancel(true);
+            Thread.currentThread().interrupt();
+            throw new SummaryUnavailableException("interrupted while waiting for LLM", e);
+        }
+    }
+
+    static boolean isRetryable(Throwable e) {
         for (Throwable t = e; t != null; t = t.getCause()) {
-            if (t instanceof ApiException api && api.code() == 429) {
+            if (t instanceof ApiException api && (api.code() == 429 || api.code() >= 500)) {
                 return true;
             }
         }
@@ -88,10 +124,14 @@ public class GeminiSummarizer implements Summarizer {
         } catch (JacksonException e) {
             throw new SummaryUnavailableException("malformed LLM JSON", e);
         }
-        if (result.pros() == null || result.cons() == null || result.verdict() == null
+        if (blankList(result.pros()) || blankList(result.cons()) || result.verdict() == null
                 || result.verdict().isBlank()) {
             throw new SummaryUnavailableException("incomplete LLM JSON");
         }
         return result;
+    }
+
+    private static boolean blankList(List<String> items) {
+        return items == null || items.isEmpty() || items.stream().anyMatch(i -> i == null || i.isBlank());
     }
 }

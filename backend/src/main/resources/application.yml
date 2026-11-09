@@ -22,3 +22,11 @@ spring:
 
 summary:
   mode: ${SUMMARY_MODE:lazy}
+  llm-timeout-ms: 20000   # one Gemini call; 429/5xx retries wait 1s, 2s, 4s on top
+  wait-timeout-ms: 60000  # concurrent requests waiting on the same game's generation
+
+server:
+  servlet:
+    session:
+      cookie:
+        same-site: lax

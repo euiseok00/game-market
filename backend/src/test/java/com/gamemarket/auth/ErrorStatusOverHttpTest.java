@@ -36,6 +36,20 @@ class ErrorStatusOverHttpTest extends IntegrationTestBase {
     }
 
     @Test
+    void sessionCookie_isSameSiteLax() throws Exception {
+        String name = "h" + UUID.randomUUID().toString().substring(0, 8);
+        assertThat(signup(name, "secret123")).isEqualTo(201);
+        HttpResponse<Void> res = http.send(HttpRequest.newBuilder(URI.create("http://localhost:" + port + "/api/auth/login"))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(
+                                "{\"username\":\"%s\",\"password\":\"secret123\"}".formatted(name))).build(),
+                HttpResponse.BodyHandlers.discarding());
+        assertThat(res.statusCode()).isEqualTo(200);
+        assertThat(res.headers().allValues("Set-Cookie"))
+                .anySatisfy(c -> assertThat(c).startsWith("JSESSIONID=").contains("SameSite=Lax"));
+    }
+
+    @Test
     void anonymous_unknownGame_returns404() throws Exception {
         assertThat(get("/api/games/999999")).isEqualTo(404);
     }

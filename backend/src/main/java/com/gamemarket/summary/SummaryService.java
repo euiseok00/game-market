@@ -7,7 +7,9 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -30,11 +32,13 @@ public class SummaryService {
     private final SummaryLogRepository logs;
     private final JsonMapper json;
     private final SummaryMode mode;
+    private final long waitTimeoutMs;
     private final ConcurrentHashMap<Long, CompletableFuture<SummaryDto>> inFlight = new ConcurrentHashMap<>();
 
     public SummaryService(GameRepository games, ReviewSource reviews, Summarizer summarizer,
             SummaryRepository summaries, SummaryLogRepository logs, JsonMapper json,
-            @Value("${summary.mode:lazy}") SummaryMode mode) {
+            @Value("${summary.mode:lazy}") SummaryMode mode,
+            @Value("${summary.wait-timeout-ms:60000}") long waitTimeoutMs) {
         this.games = games;
         this.reviews = reviews;
         this.summarizer = summarizer;
@@ -42,6 +46,7 @@ public class SummaryService {
         this.logs = logs;
         this.json = json;
         this.mode = mode;
+        this.waitTimeoutMs = waitTimeoutMs;
     }
 
     public SummaryMode mode() {
@@ -98,14 +103,19 @@ public class SummaryService {
         }
     }
 
-    private static SummaryDto await(CompletableFuture<SummaryDto> running) {
+    private SummaryDto await(CompletableFuture<SummaryDto> running) {
         try {
-            return running.join();
-        } catch (CompletionException e) {
+            return running.get(waitTimeoutMs, TimeUnit.MILLISECONDS);
+        } catch (TimeoutException e) {
+            throw new SummaryUnavailableException("summary still being generated", e);
+        } catch (ExecutionException e) {
             if (e.getCause() instanceof RuntimeException re) {
                 throw re;
             }
-            throw e;
+            throw new IllegalStateException(e.getCause());
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            throw new SummaryUnavailableException("interrupted while waiting for summary", e);
         }
     }
 

@@ -11,6 +11,7 @@ import com.gamemarket.ApiTestBase;
 import com.gamemarket.game.Game;
 import com.gamemarket.review.ReviewSource;
 import com.google.genai.errors.ClientException;
+import com.google.genai.errors.ServerException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 import java.util.List;
@@ -34,7 +35,7 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 /** Exercises the real GeminiSummarizer against a mocked ChatModel. */
-@TestPropertySource(properties = "summary.retry.initial-backoff-ms=1")
+@TestPropertySource(properties = {"summary.retry.initial-backoff-ms=1", "summary.llm-timeout-ms=300"})
 @Import(SummaryFailureTest.FakeChat.class)
 class SummaryFailureTest extends ApiTestBase {
 
@@ -135,6 +136,40 @@ class SummaryFailureTest extends ApiTestBase {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.verdict").value("추천"));
         assertThat(summaries.findByGameId(game.getId())).isPresent();
+    }
+
+    @Test
+    void serverError503_isRetried_thenSucceeds() throws Exception {
+        chatModel.always(() -> reply("{\"pros\":[\"전투\"],\"cons\":[\"짧음\"],\"verdict\":\"추천\"}"));
+        chatModel.script.add(() -> { throw new ServerException(503, "UNAVAILABLE", "overloaded"); });
+        mvc.perform(get("/api/games/{id}/summary", game.getId()).session(session))
+                .andExpect(status().isOk());
+        assertThat(chatModel.calls.get()).isEqualTo(2);
+    }
+
+    @Test
+    void emptyProsOrCons_returns503_andStoresNothing() throws Exception {
+        chatModel.always(() -> reply("{\"pros\":[],\"cons\":[\" \"],\"verdict\":\"추천\"}"));
+        mvc.perform(get("/api/games/{id}/summary", game.getId()).session(session))
+                .andExpect(status().isServiceUnavailable());
+        assertThat(summaries.findByGameId(game.getId())).isEmpty();
+    }
+
+    @Test
+    void hangingLlm_timesOut_returns503() throws Exception {
+        chatModel.always(() -> {
+            try {
+                Thread.sleep(5_000);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+            }
+            return reply("{}");
+        });
+        long start = System.nanoTime();
+        mvc.perform(get("/api/games/{id}/summary", game.getId()).session(session))
+                .andExpect(status().isServiceUnavailable());
+        assertThat((System.nanoTime() - start) / 1_000_000).isLessThan(2_000);
+        assertThat(summaries.findByGameId(game.getId())).isEmpty();
     }
 
     @Test

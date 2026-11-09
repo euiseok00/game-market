@@ -1,8 +1,8 @@
-FROM eclipse-temurin:21-jdk AS build
+# Gradle preinstalled (9.8.2: newest published image; wrapper uses 9.9.0) so the build does not download a distribution.
+FROM gradle:9.8.2-jdk21 AS build
 WORKDIR /src
 COPY . .
-# gradlew may carry CRLF when the repo is checked out on Windows
-RUN sed -i 's/\r$//' gradlew && chmod +x gradlew && ./gradlew bootJar --no-daemon -q
+RUN gradle bootJar --no-daemon -q
 
 FROM eclipse-temurin:21-jre
 WORKDIR /app

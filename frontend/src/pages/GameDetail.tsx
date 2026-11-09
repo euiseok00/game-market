@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { ApiError, cartApi, formatPrice, gamesApi, type Game } from '../api'
 import { useAuth } from '../auth'
+import SummaryPanel from '../components/SummaryPanel'
 
 export default function GameDetail() {
   const { id = '' } = useParams()
@@ -49,6 +50,7 @@ export default function GameDetail() {
         )}
         {notice && <p className="notice" role="status">{notice}</p>}
       </div>
+      {me && <SummaryPanel gameId={game.id} />}
     </article>
   )
 }

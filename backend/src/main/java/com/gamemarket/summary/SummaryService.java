@@ -5,7 +5,12 @@ import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
+import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,6 +30,7 @@ public class SummaryService {
     private final SummaryLogRepository logs;
     private final JsonMapper json;
     private final SummaryMode mode;
+    private final ConcurrentHashMap<Long, CompletableFuture<SummaryDto>> inFlight = new ConcurrentHashMap<>();
 
     public SummaryService(GameRepository games, ReviewSource reviews, Summarizer summarizer,
             SummaryRepository summaries, SummaryLogRepository logs, JsonMapper json,
@@ -53,29 +59,75 @@ public class SummaryService {
         Timing timing = new Timing();
         SummaryDto dto = requestMode == SummaryMode.NONE
                 ? toDto(generate(game, timing), Instant.now())
-                : summaries.findByGameId(gameId).map(this::toDto).orElseGet(() -> generateAndStore(game, timing));
+                : storedOrGenerate(game, timing);
         logs.save(new SummaryLog(gameId, requestMode.label(), timing.fetchMs, timing.llmMs, millisSince(start)));
         return dto;
     }
 
     /** Precompute without logging a request; used by the warm-up at startup. */
     public void ensureStored(Long gameId) {
-        if (summaries.findByGameId(gameId).isEmpty()) {
-            generateAndStore(games.findById(gameId).orElseThrow(), new Timing());
+        storedOrGenerate(games.findById(gameId).orElseThrow(), new Timing());
+    }
+
+    /**
+     * Single-flight per game: concurrent callers for the same game share one generation. The unique game_id
+     * constraint is the last line of defense (e.g. a second app instance).
+     */
+    private SummaryDto storedOrGenerate(Game game, Timing timing) {
+        Long gameId = game.getId();
+        Optional<ReviewSummary> stored = summaries.findByGameId(gameId);
+        if (stored.isPresent()) {
+            return toDto(stored.get());
+        }
+        CompletableFuture<SummaryDto> mine = new CompletableFuture<>();
+        CompletableFuture<SummaryDto> running = inFlight.putIfAbsent(gameId, mine);
+        if (running != null) {
+            return await(running);
+        }
+        try {
+            // Re-check: a flight may have finished between our lookup and putIfAbsent.
+            SummaryDto dto = summaries.findByGameId(gameId).map(this::toDto)
+                    .orElseGet(() -> generateAndStore(game, timing));
+            mine.complete(dto);
+            return dto;
+        } catch (RuntimeException e) {
+            mine.completeExceptionally(e);
+            throw e;
+        } finally {
+            inFlight.remove(gameId, mine);
+        }
+    }
+
+    private static SummaryDto await(CompletableFuture<SummaryDto> running) {
+        try {
+            return running.join();
+        } catch (CompletionException e) {
+            if (e.getCause() instanceof RuntimeException re) {
+                throw re;
+            }
+            throw e;
         }
     }
 
     private SummaryDto generateAndStore(Game game, Timing timing) {
         SummaryResult result = generate(game, timing);
-        ReviewSummary saved = summaries.saveAndFlush(new ReviewSummary(game, json.writeValueAsString(result.pros()),
-                json.writeValueAsString(result.cons()), result.verdict(), Instant.now()));
-        return toDto(saved);
+        try {
+            ReviewSummary saved = summaries.saveAndFlush(new ReviewSummary(game,
+                    json.writeValueAsString(result.pros()), json.writeValueAsString(result.cons()),
+                    result.verdict(), Instant.now()));
+            return toDto(saved);
+        } catch (DataIntegrityViolationException duplicate) {
+            return summaries.findByGameId(game.getId()).map(this::toDto).orElseThrow(() -> duplicate);
+        }
     }
 
     private SummaryResult generate(Game game, Timing timing) {
         long t0 = System.nanoTime();
         List<String> texts = reviews.fetch(game.getSteamAppId());
         timing.fetchMs = millisSince(t0);
+        if (texts.isEmpty()) {
+            throw new SummaryUnavailableException("no reviews for game " + game.getId());
+        }
         long t1 = System.nanoTime();
         SummaryResult result = summarizer.summarize(game.getName(), texts);
         timing.llmMs = millisSince(t1);

@@ -23,6 +23,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 class SummaryServiceTest {
@@ -120,8 +121,13 @@ class SummaryServiceTest {
             }
         }
 
-        @MockitoBean
-        ReviewSource reviews; // unstubbed mock returns an empty list; the stub summarizer ignores it
+        // Replaces the primary ReviewSource before startup so the warm-up never touches Steam.
+        @TestBean(name = "fallbackReviewSource")
+        ReviewSource reviews;
+
+        static ReviewSource reviews() {
+            return appId -> List.of("good game");
+        }
 
         @Autowired
         SummaryService service;

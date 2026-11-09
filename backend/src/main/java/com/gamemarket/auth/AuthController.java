@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import java.nio.charset.StandardCharsets;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -50,6 +51,9 @@ public class AuthController {
     @PostMapping("/signup")
     @ResponseStatus(HttpStatus.CREATED)
     public Me signup(@Valid @RequestBody Credentials body) {
+        if (exceedsBcryptLimit(body.password())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "password longer than 72 bytes");
+        }
         String username = body.username().trim();
         if (users.existsByUsername(username)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "username taken");
@@ -64,6 +68,9 @@ public class AuthController {
 
     @PostMapping("/login")
     public Me login(@Valid @RequestBody Credentials body, HttpServletRequest request, HttpServletResponse response) {
+        if (exceedsBcryptLimit(body.password())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "bad credentials");
+        }
         Authentication auth;
         try {
             auth = authManager.authenticate(
@@ -79,6 +86,11 @@ public class AuthController {
         contextRepository.saveContext(context, request, response);
         AuthUser user = (AuthUser) auth.getPrincipal();
         return new Me(user.id(), user.username());
+    }
+
+    /** BCrypt only reads 72 bytes and Spring Security 7 rejects longer input, so check bytes, not chars. */
+    private static boolean exceedsBcryptLimit(String password) {
+        return password.getBytes(StandardCharsets.UTF_8).length > 72;
     }
 
     @PostMapping("/logout")

@@ -1,5 +1,6 @@
 package com.gamemarket.auth;
 
+import jakarta.servlet.DispatcherType;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -24,6 +25,8 @@ public class SecurityConfig {
                 // CSRF off: the SPA reaches the API through a same-origin proxy (Vite dev / nginx) with a session cookie.
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
+                        // Error dispatches carry the real status (404/409/400); securing them turns every error into 401.
+                        .dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
                         .requestMatchers("/api/auth/signup", "/api/auth/login", "/api/auth/logout").permitAll()
                         .requestMatchers("/api/cart/**", "/api/orders/**", "/api/library", "/api/games/*/summary")
                         .authenticated()

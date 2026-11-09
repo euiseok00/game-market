@@ -4,6 +4,7 @@ import com.gamemarket.auth.AuthUser;
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameDto;
 import com.gamemarket.game.GameRepository;
+import com.gamemarket.order.OrderService;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -26,10 +27,12 @@ public class CartController {
 
     private final CartRepository cart;
     private final GameRepository games;
+    private final OrderService orders;
 
-    public CartController(CartRepository cart, GameRepository games) {
+    public CartController(CartRepository cart, GameRepository games, OrderService orders) {
         this.cart = cart;
         this.games = games;
+        this.orders = orders;
     }
 
     @GetMapping
@@ -45,6 +48,9 @@ public class CartController {
         Game game = games.findById(gameId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         if (cart.existsByUserIdAndGameId(user.id(), gameId)) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "already in cart");
+        }
+        if (orders.owns(user.id(), gameId)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "already owned");
         }
         try {
             cart.saveAndFlush(new CartItem(user.id(), game));

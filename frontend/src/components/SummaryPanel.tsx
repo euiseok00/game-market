@@ -7,6 +7,13 @@ type State = { status: 'idle' } | { status: 'loading' } | { status: 'error'; mes
 const speechText = (s: Summary) =>
   ['장점.', ...s.pros, '단점.', ...s.cons, '총평.', s.verdict].join(' ')
 
+/** Says what the summary rests on; seed reviews are sample data because Steam's review API is not reachable. */
+const sourceLabel = (s: Summary) => {
+  if (!s.reviewSource) return ''
+  const what = s.reviewSource === 'steam' ? 'Steam 사용자 리뷰' : '시드 리뷰(예시 데이터)'
+  return `${what} ${s.reviewCount ?? 0}개 기반 요약`
+}
+
 export default function SummaryPanel({ gameId }: { gameId: number }) {
   const [state, setState] = useState<State>({ status: 'idle' })
   const tts = useTts(state.status === 'done' ? speechText(state.summary) : '')
@@ -56,6 +63,7 @@ export default function SummaryPanel({ gameId }: { gameId: number }) {
           <h3>총평</h3>
           <p>{state.summary.verdict}</p>
           <p className="muted small">생성 시각: {new Date(state.summary.createdAt).toLocaleString('ko-KR')}</p>
+          {sourceLabel(state.summary) && <p className="muted small">{sourceLabel(state.summary)}</p>}
 
           <div className="tts">
             <button onClick={tts.play} disabled={!tts.supported || !tts.hasKoVoice || tts.speaking}>음성 재생</button>

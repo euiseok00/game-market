@@ -11,7 +11,14 @@ export type Game = {
 export type Cart = { items: Game[]; totalKrw: number }
 export type Order = { id: number; items: Game[]; totalKrw: number; createdAt: string }
 export type Me = { id: number; username: string }
-export type Summary = { pros: string[]; cons: string[]; verdict: string; createdAt: string }
+export type Summary = {
+  pros: string[]
+  cons: string[]
+  verdict: string
+  createdAt: string
+  reviewSource: 'steam' | 'seed' | null
+  reviewCount: number | null
+}
 
 export class ApiError extends Error {
   status: number

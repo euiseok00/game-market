@@ -12,12 +12,14 @@ import com.gamemarket.IntegrationTestBase;
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
+import com.gamemarket.review.Reviews;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
@@ -52,7 +54,7 @@ class SummaryServiceTest {
 
         @BeforeEach
         void stubs() {
-            when(reviews.fetch(anyLong())).thenReturn(List.of("good game", "bad netcode"));
+            when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("good game", "bad netcode")));
             when(summarizer.summarize(anyString(), anyList())).thenReturn(RESULT);
         }
 
@@ -86,15 +88,28 @@ class SummaryServiceTest {
         }
 
         @Test
+        void summary_reportsReviewSourceAndCount_alsoWhenReadFromDb() {
+            Game g = anyGame();
+            summaries.deleteAll();
+            SummaryDto generated = service.get(g.getId(), SummaryMode.LAZY);
+            SummaryDto cached = service.get(g.getId(), SummaryMode.LAZY);
+            assertThat(generated.reviewSource()).isEqualTo("seed");
+            assertThat(generated.reviewCount()).isEqualTo(2);
+            assertThat(cached.reviewSource()).isEqualTo("seed");
+            assertThat(cached.reviewCount()).isEqualTo(2);
+            assertThat(service.get(g.getId(), SummaryMode.NONE).reviewCount()).isEqualTo(2);
+        }
+
+        @Test
         void everyCall_writesSummaryLog() {
             Game g = anyGame();
-            long before = logs.count();
+            long lastIdBefore = logs.findAll().stream().mapToLong(SummaryLog::getId).max().orElse(0);
             service.get(g.getId(), SummaryMode.NONE);
             service.get(g.getId(), SummaryMode.LAZY);
             service.get(g.getId(), SummaryMode.LAZY);
-            List<SummaryLog> all = logs.findAll();
-            assertThat(all).hasSize((int) before + 3);
-            assertThat(all.subList((int) before, all.size()))
+            // findAll() has no guaranteed order; compare only the rows this test wrote, by id.
+            assertThat(logs.findAll(Sort.by("id")))
+                    .filteredOn(l -> l.getId() > lastIdBefore)
                     .extracting(SummaryLog::getMode)
                     .containsExactly("none", "lazy", "lazy");
         }
@@ -126,7 +141,7 @@ class SummaryServiceTest {
         ReviewSource reviews;
 
         static ReviewSource reviews() {
-            return appId -> List.of("good game");
+            return appId -> Reviews.seed(List.of("good game"));
         }
 
         @Autowired

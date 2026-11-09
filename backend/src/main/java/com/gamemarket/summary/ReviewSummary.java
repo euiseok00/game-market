@@ -37,15 +37,24 @@ public class ReviewSummary {
     @Column(nullable = false)
     private Instant createdAt;
 
+    // Nullable: ddl-auto=update adds these columns to rows created before they existed.
+    @Column(length = 10)
+    private String reviewSource;
+
+    private Integer reviewCount;
+
     protected ReviewSummary() {
     }
 
-    public ReviewSummary(Game game, String prosJson, String consJson, String verdict, Instant createdAt) {
+    public ReviewSummary(Game game, String prosJson, String consJson, String verdict, Instant createdAt,
+            String reviewSource, Integer reviewCount) {
         this.game = game;
         this.prosJson = prosJson;
         this.consJson = consJson;
         this.verdict = verdict;
         this.createdAt = createdAt;
+        this.reviewSource = reviewSource;
+        this.reviewCount = reviewCount;
     }
 
     public Long getId() { return id; }
@@ -54,4 +63,6 @@ public class ReviewSummary {
     public String getConsJson() { return consJson; }
     public String getVerdict() { return verdict; }
     public Instant getCreatedAt() { return createdAt; }
+    public String getReviewSource() { return reviewSource; }
+    public Integer getReviewCount() { return reviewCount; }
 }

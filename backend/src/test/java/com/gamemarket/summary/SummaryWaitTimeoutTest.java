@@ -11,6 +11,7 @@ import com.gamemarket.IntegrationTestBase;
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
+import com.gamemarket.review.Reviews;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -44,7 +45,7 @@ class SummaryWaitTimeoutTest extends IntegrationTestBase {
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
         CountDownLatch entered = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
-        when(reviews.fetch(anyLong())).thenReturn(List.of("fun"));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("fun")));
         when(summarizer.summarize(anyString(), anyList())).thenAnswer(inv -> {
             entered.countDown();
             release.await(10, TimeUnit.SECONDS);

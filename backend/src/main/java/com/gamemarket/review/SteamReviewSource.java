@@ -2,7 +2,6 @@ package com.gamemarket.review;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
-import java.util.List;
 import org.springframework.http.MediaType;
 import org.springframework.http.client.JdkClientHttpRequestFactory;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,7 @@ public class SteamReviewSource implements ReviewSource {
     }
 
     @Override
-    public List<String> fetch(long steamAppId) {
+    public Reviews fetch(long steamAppId) {
         String body = http.get().uri(URL, steamAppId).exchange((req, res) -> {
             MediaType type = res.getHeaders().getContentType();
             if (!res.getStatusCode().is2xxSuccessful() || type == null || !type.isCompatibleWith(MediaType.APPLICATION_JSON)) {
@@ -47,9 +46,9 @@ public class SteamReviewSource implements ReviewSource {
         if (root.path("success").asInt() != 1) {
             throw new IllegalStateException("Steam success != 1");
         }
-        return root.path("reviews").valueStream()
+        return Reviews.steam(root.path("reviews").valueStream()
                 .map(r -> r.path("review").asString(""))
                 .filter(s -> !s.isBlank())
-                .toList();
+                .toList());
     }
 }

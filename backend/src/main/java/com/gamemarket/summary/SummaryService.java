@@ -3,6 +3,7 @@ package com.gamemarket.summary;
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
+import com.gamemarket.review.Reviews;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -120,37 +121,43 @@ public class SummaryService {
     }
 
     private SummaryDto generateAndStore(Game game, Timing timing) {
-        SummaryResult result = generate(game, timing);
+        Generated generated = generate(game, timing);
+        SummaryResult result = generated.result();
         try {
             ReviewSummary saved = summaries.saveAndFlush(new ReviewSummary(game,
                     json.writeValueAsString(result.pros()), json.writeValueAsString(result.cons()),
-                    result.verdict(), Instant.now()));
+                    result.verdict(), Instant.now(), generated.reviews().source(), generated.reviews().texts().size()));
             return toDto(saved);
         } catch (DataIntegrityViolationException duplicate) {
             return summaries.findByGameId(game.getId()).map(this::toDto).orElseThrow(() -> duplicate);
         }
     }
 
-    private SummaryResult generate(Game game, Timing timing) {
+    private record Generated(SummaryResult result, Reviews reviews) {
+    }
+
+    private Generated generate(Game game, Timing timing) {
         long t0 = System.nanoTime();
-        List<String> texts = reviews.fetch(game.getSteamAppId());
+        Reviews fetched = reviews.fetch(game.getSteamAppId());
         timing.fetchMs = millisSince(t0);
-        if (texts.isEmpty()) {
+        if (fetched.texts().isEmpty()) {
             throw new SummaryUnavailableException("no reviews for game " + game.getId());
         }
         long t1 = System.nanoTime();
-        SummaryResult result = summarizer.summarize(game.getName(), texts);
+        SummaryResult result = summarizer.summarize(game.getName(), fetched.texts());
         timing.llmMs = millisSince(t1);
-        return result;
+        return new Generated(result, fetched);
     }
 
     private SummaryDto toDto(ReviewSummary s) {
         return new SummaryDto(json.readValue(s.getProsJson(), STRINGS), json.readValue(s.getConsJson(), STRINGS),
-                s.getVerdict(), s.getCreatedAt());
+                s.getVerdict(), s.getCreatedAt(), s.getReviewSource(), s.getReviewCount());
     }
 
-    private static SummaryDto toDto(SummaryResult r, Instant createdAt) {
-        return new SummaryDto(r.pros(), r.cons(), r.verdict(), createdAt);
+    private static SummaryDto toDto(Generated g, Instant createdAt) {
+        SummaryResult r = g.result();
+        return new SummaryDto(r.pros(), r.cons(), r.verdict(), createdAt, g.reviews().source(),
+                g.reviews().texts().size());
     }
 
     private static long millisSince(long nanoStart) {

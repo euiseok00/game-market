@@ -10,6 +10,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.gamemarket.ApiTestBase;
 import com.gamemarket.game.Game;
 import com.gamemarket.review.ReviewSource;
+import com.gamemarket.review.Reviews;
 import com.google.genai.errors.ClientException;
 import com.google.genai.errors.ServerException;
 import java.util.ArrayDeque;
@@ -91,7 +92,7 @@ class SummaryFailureTest extends ApiTestBase {
         session = newUserSession();
         game = games.findAll().get(2);
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
-        when(reviews.fetch(anyLong())).thenReturn(List.of("great combat", "too short"));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("great combat", "too short")));
         chatModel.calls.set(0);
         chatModel.script.clear();
     }
@@ -174,7 +175,7 @@ class SummaryFailureTest extends ApiTestBase {
 
     @Test
     void emptyReviewList_returns503OrUsesSeed() throws Exception {
-        when(reviews.fetch(anyLong())).thenReturn(List.of());
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of()));
         mvc.perform(get("/api/games/{id}/summary", game.getId()).session(session))
                 .andExpect(status().isServiceUnavailable());
         assertThat(chatModel.calls.get()).isZero();

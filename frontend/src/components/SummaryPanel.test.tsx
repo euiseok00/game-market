@@ -8,6 +8,8 @@ const summary = {
   cons: ['최적화가 아쉽다'],
   verdict: '할인 때 사면 만족스럽다.',
   createdAt: '2026-11-09T04:00:00Z',
+  reviewSource: 'seed',
+  reviewCount: 6,
 }
 
 function respond(status: number, body: unknown) {
@@ -66,6 +68,22 @@ describe('SummaryPanel', () => {
     expect(await screen.findAllByText('재미있다')).toHaveLength(2)
     expect(consoleError.mock.calls.flat().join(' ')).not.toMatch(/same key/i)
     consoleError.mockRestore()
+  })
+
+  it('shows review source and count', async () => {
+    const release = respond(200, summary)
+    render(<SummaryPanel gameId={1} />)
+    await userEvent.click(screen.getByRole('button', { name: 'AI 리뷰 요약 보기' }))
+    release()
+    expect(await screen.findByText(/시드 리뷰\(예시 데이터\) 6개 기반/)).toBeInTheDocument()
+  })
+
+  it('labels steam reviews', async () => {
+    const release = respond(200, { ...summary, reviewSource: 'steam', reviewCount: 20 })
+    render(<SummaryPanel gameId={1} />)
+    await userEvent.click(screen.getByRole('button', { name: 'AI 리뷰 요약 보기' }))
+    release()
+    expect(await screen.findByText(/Steam 사용자 리뷰 20개 기반/)).toBeInTheDocument()
   })
 
   it('shows error message on 503', async () => {

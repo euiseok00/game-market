@@ -25,7 +25,7 @@ public class SeedReviewSource implements ReviewSource {
     }
 
     @Override
-    public List<String> fetch(long steamAppId) {
-        return reviews.getOrDefault(String.valueOf(steamAppId), List.of());
+    public Reviews fetch(long steamAppId) {
+        return Reviews.seed(reviews.getOrDefault(String.valueOf(steamAppId), List.of()));
     }
 }

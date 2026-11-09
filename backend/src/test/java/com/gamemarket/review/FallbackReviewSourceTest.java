@@ -19,19 +19,25 @@ class FallbackReviewSourceTest {
     @Test
     void steamThrows_usesSeed() {
         ReviewSource steam = appId -> { throw new IllegalStateException("not json"); };
-        assertThat(new FallbackReviewSource(steam, seed).fetch(PORTAL_2)).isEqualTo(seed.fetch(PORTAL_2));
+        Reviews got = new FallbackReviewSource(steam, seed).fetch(PORTAL_2);
+        assertThat(got).isEqualTo(seed.fetch(PORTAL_2));
+        assertThat(got.source()).isEqualTo(Reviews.SEED);
     }
 
     @Test
     void steamReturnsEmpty_usesSeed() {
-        ReviewSource steam = appId -> List.of();
-        assertThat(new FallbackReviewSource(steam, seed).fetch(PORTAL_2)).isEqualTo(seed.fetch(PORTAL_2));
+        ReviewSource steam = appId -> Reviews.steam(List.of());
+        Reviews got = new FallbackReviewSource(steam, seed).fetch(PORTAL_2);
+        assertThat(got.texts()).isEqualTo(seed.fetch(PORTAL_2).texts());
+        assertThat(got.source()).isEqualTo(Reviews.SEED);
     }
 
     @Test
     void steamReturnsReviews_usesSteam() {
-        ReviewSource steam = appId -> List.of("real review");
-        assertThat(new FallbackReviewSource(steam, seed).fetch(PORTAL_2)).containsExactly("real review");
+        ReviewSource steam = appId -> Reviews.steam(List.of("real review"));
+        Reviews got = new FallbackReviewSource(steam, seed).fetch(PORTAL_2);
+        assertThat(got.texts()).containsExactly("real review");
+        assertThat(got.source()).isEqualTo(Reviews.STEAM);
     }
 
     @Test
@@ -41,6 +47,6 @@ class FallbackReviewSourceTest {
             games = json.readValue(in, new TypeReference<>() { });
         }
         assertThat(games).isNotEmpty().allSatisfy(g ->
-                assertThat(seed.fetch(((Number) g.get("steamAppId")).longValue())).isNotEmpty());
+                assertThat(seed.fetch(((Number) g.get("steamAppId")).longValue()).texts()).isNotEmpty());
     }
 }

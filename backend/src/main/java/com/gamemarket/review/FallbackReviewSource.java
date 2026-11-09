@@ -1,6 +1,5 @@
 package com.gamemarket.review;
 
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +27,10 @@ public class FallbackReviewSource implements ReviewSource {
     }
 
     @Override
-    public List<String> fetch(long steamAppId) {
+    public Reviews fetch(long steamAppId) {
         try {
-            List<String> reviews = steam.fetch(steamAppId);
-            if (!reviews.isEmpty()) {
+            Reviews reviews = steam.fetch(steamAppId);
+            if (!reviews.texts().isEmpty()) {
                 return reviews;
             }
             log.info("Steam returned no reviews for {}, using seed", steamAppId);

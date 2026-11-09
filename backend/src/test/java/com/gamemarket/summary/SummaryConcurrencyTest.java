@@ -12,6 +12,7 @@ import com.gamemarket.IntegrationTestBase;
 import com.gamemarket.game.Game;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.review.ReviewSource;
+import com.gamemarket.review.Reviews;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -43,7 +44,7 @@ class SummaryConcurrencyTest extends IntegrationTestBase {
     void concurrent20Requests_callSummarizerOnce_andStoreOneRow() throws Exception {
         Game game = games.findAll().get(1);
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
-        when(reviews.fetch(anyLong())).thenReturn(List.of("fun"));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("fun")));
         when(summarizer.summarize(anyString(), anyList())).thenAnswer(inv -> {
             Thread.sleep(300); // keep the first call in flight while the others arrive
             return new SummaryResult(List.of("장점"), List.of("단점"), "총평");

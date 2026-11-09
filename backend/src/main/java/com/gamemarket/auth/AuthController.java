@@ -26,16 +26,12 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.gamemarket.auth.dto.Credentials;
+import com.gamemarket.auth.dto.Me;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
-
-    public record Credentials(@NotBlank @Size(max = 50) String username, @NotBlank @Size(max = 100) String password) {
-    }
-
-    public record Me(Long id, String username) {
-    }
 
     private final UserRepository users;
     private final PasswordEncoder encoder;

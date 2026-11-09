@@ -1,4 +1,4 @@
-package com.gamemarket.summary;
+package com.gamemarket.summary.dto;
 
 import java.time.Instant;
 import java.util.List;

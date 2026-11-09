@@ -2,7 +2,7 @@ package com.gamemarket.order;
 
 import com.gamemarket.cart.CartItem;
 import com.gamemarket.cart.CartRepository;
-import com.gamemarket.game.GameDto;
+import com.gamemarket.game.dto.GameDto;
 import java.time.Instant;
 import java.util.List;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -10,17 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
+import com.gamemarket.order.dto.OrderDto;
 
 @Service
 public class OrderService {
-
-    public record OrderDto(Long id, List<GameDto> items, int totalKrw, Instant createdAt) {
-
-        static OrderDto of(Order o) {
-            return new OrderDto(o.getId(), o.getItems().stream().map(i -> GameDto.of(i.getGame())).toList(),
-                    o.getTotalKrw(), o.getCreatedAt());
-        }
-    }
 
     private final CartRepository cart;
     private final OrderRepository orders;

@@ -20,6 +20,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import com.gamemarket.summary.dto.SummaryDto;
 
 @TestPropertySource(properties = "summary.wait-timeout-ms=200")
 class SummaryWaitTimeoutTest extends IntegrationTestBase {

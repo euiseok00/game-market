@@ -1,7 +1,7 @@
 package com.gamemarket.order;
 
 import com.gamemarket.auth.AuthUser;
-import com.gamemarket.game.GameDto;
+import com.gamemarket.game.dto.GameDto;
 import java.util.List;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;

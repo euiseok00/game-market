@@ -27,6 +27,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.bean.override.convention.TestBean;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import com.gamemarket.summary.dto.SummaryDto;
 
 class SummaryServiceTest {
 

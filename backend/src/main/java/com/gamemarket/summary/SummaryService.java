@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
+import com.gamemarket.summary.dto.SummaryDto;
 
 /** The only place that branches on summary.mode. */
 @Service

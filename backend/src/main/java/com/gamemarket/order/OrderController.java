@@ -1,7 +1,7 @@
 package com.gamemarket.order;
 
 import com.gamemarket.auth.AuthUser;
-import com.gamemarket.order.OrderService.OrderDto;
+import com.gamemarket.order.dto.OrderDto;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.PostMapping;

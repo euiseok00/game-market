@@ -2,7 +2,7 @@ package com.gamemarket.cart;
 
 import com.gamemarket.auth.AuthUser;
 import com.gamemarket.game.Game;
-import com.gamemarket.game.GameDto;
+import com.gamemarket.game.dto.GameDto;
 import com.gamemarket.game.GameRepository;
 import com.gamemarket.order.OrderService;
 import java.util.List;
@@ -17,13 +17,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
+import com.gamemarket.cart.dto.CartDto;
 
 @RestController
 @RequestMapping("/api/cart")
 public class CartController {
-
-    public record CartDto(List<GameDto> items, int totalKrw) {
-    }
 
     private final CartRepository cart;
     private final GameRepository games;

@@ -22,6 +22,7 @@ import java.util.concurrent.Future;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import com.gamemarket.summary.dto.SummaryDto;
 
 class SummaryConcurrencyTest extends IntegrationTestBase {
 

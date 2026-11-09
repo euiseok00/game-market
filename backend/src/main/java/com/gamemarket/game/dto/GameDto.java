@@ -1,4 +1,6 @@
-package com.gamemarket.game;
+package com.gamemarket.game.dto;
+
+import com.gamemarket.game.Game;
 
 public record GameDto(Long id, long steamAppId, String name, String genre, int priceKrw, String imageUrl,
         String description) {

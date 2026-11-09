@@ -13,3 +13,10 @@ spring:
     google:
       genai:
         api-key: ${GEMINI_API_KEY:}
+        chat:
+          model: ${GEMINI_MODEL:gemini-2.5-flash-lite}
+          response-mime-type: application/json
+          temperature: 0.2
+
+summary:
+  mode: ${SUMMARY_MODE:lazy}

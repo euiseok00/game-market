@@ -21,7 +21,7 @@ spring:
           temperature: 0.2
 
 summary:
-  mode: ${SUMMARY_MODE:lazy}
+  refresh-cron: "0 0 0,6,12,18 * * *" # Asia/Seoul; regenerate summaries whose reviews changed
   llm-timeout-ms: 20000   # one Gemini call; 429/5xx retries wait 1s, 2s, 4s on top
   wait-timeout-ms: 60000  # concurrent requests waiting on the same game's generation
 

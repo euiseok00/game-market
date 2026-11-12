@@ -1,0 +1,11 @@
+package com.gamemarket.review;
+
+import java.util.List;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface ReviewRepository extends JpaRepository<Review, Long> {
+
+    List<Review> findByGameIdOrderById(Long gameId);
+
+    boolean existsByGameId(Long gameId);
+}

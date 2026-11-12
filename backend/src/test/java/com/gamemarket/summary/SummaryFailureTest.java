@@ -92,7 +92,7 @@ class SummaryFailureTest extends ApiTestBase {
         session = newUserSession();
         game = games.findAll().get(2);
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
-        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("great combat", "too short")));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of(new Reviews.Item(1, "great combat"), new Reviews.Item(2, "too short"))));
         chatModel.calls.set(0);
         chatModel.script.clear();
     }

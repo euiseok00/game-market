@@ -46,7 +46,7 @@ class SummaryWaitTimeoutTest extends IntegrationTestBase {
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
         CountDownLatch entered = new CountDownLatch(1);
         CountDownLatch release = new CountDownLatch(1);
-        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("fun")));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of(new Reviews.Item(1, "fun"))));
         when(summarizer.summarize(anyString(), anyList())).thenAnswer(inv -> {
             entered.countDown();
             release.await(10, TimeUnit.SECONDS);
@@ -54,11 +54,11 @@ class SummaryWaitTimeoutTest extends IntegrationTestBase {
         });
 
         CompletableFuture<SummaryDto> first = CompletableFuture.supplyAsync(
-                () -> service.get(game.getId(), SummaryMode.LAZY));
+                () -> service.get(game.getId()));
         assertThat(entered.await(5, TimeUnit.SECONDS)).isTrue();
 
         long start = System.nanoTime();
-        assertThatThrownBy(() -> service.get(game.getId(), SummaryMode.LAZY))
+        assertThatThrownBy(() -> service.get(game.getId()))
                 .isInstanceOf(SummaryUnavailableException.class);
         assertThat((System.nanoTime() - start) / 1_000_000).isLessThan(2_000);
 

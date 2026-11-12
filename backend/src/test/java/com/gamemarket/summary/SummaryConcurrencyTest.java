@@ -45,7 +45,7 @@ class SummaryConcurrencyTest extends IntegrationTestBase {
     void concurrent20Requests_callSummarizerOnce_andStoreOneRow() throws Exception {
         Game game = games.findAll().get(1);
         summaries.findByGameId(game.getId()).ifPresent(summaries::delete);
-        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of("fun")));
+        when(reviews.fetch(anyLong())).thenReturn(Reviews.seed(List.of(new Reviews.Item(1, "fun"))));
         when(summarizer.summarize(anyString(), anyList())).thenAnswer(inv -> {
             Thread.sleep(300); // keep the first call in flight while the others arrive
             return new SummaryResult(List.of("장점"), List.of("단점"), "총평");
@@ -57,7 +57,7 @@ class SummaryConcurrencyTest extends IntegrationTestBase {
         for (int i = 0; i < 20; i++) {
             results.add(pool.submit(() -> {
                 start.await();
-                return service.get(game.getId(), SummaryMode.LAZY);
+                return service.get(game.getId());
             }));
         }
         start.countDown();

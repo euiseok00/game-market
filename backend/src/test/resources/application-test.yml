@@ -3,3 +3,6 @@ spring:
     google:
       genai:
         api-key: test-dummy-key
+
+summary:
+  refresh-cron: "-" # disabled; tests call SummaryService.refreshIfChanged directly

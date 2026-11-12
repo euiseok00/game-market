@@ -20,7 +20,9 @@ export type Summary = {
   reviewCount: number | null
 }
 
-export type GameReviews = { source: 'steam' | 'seed'; reviews: string[] }
+/** userId is null for seed reviews. */
+export type Review = { id: number; content: string; userId: number | null }
+export type GameReviews = { source: 'seed'; reviews: Review[] }
 
 export class ApiError extends Error {
   status: number
@@ -70,6 +72,10 @@ export const gamesApi = {
   get: (id: string | number) => api<Game>(`/api/games/${id}`),
   summary: (id: string | number) => api<Summary>(`/api/games/${id}/summary`),
   reviews: (id: string | number) => api<GameReviews>(`/api/games/${id}/reviews`),
+  addReview: (id: number, content: string) =>
+    api<Review>(`/api/games/${id}/reviews`, { method: 'POST', body: JSON.stringify({ content }) }),
+  editReview: (id: number, reviewId: number, content: string) =>
+    api<Review>(`/api/games/${id}/reviews/${reviewId}`, { method: 'PUT', body: JSON.stringify({ content }) }),
 }
 
 export const authApi = {

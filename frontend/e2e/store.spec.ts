@@ -53,7 +53,7 @@ test('anyone can read the example reviews on a game page', async ({ page }) => {
   await page.getByRole('heading', { name: 'Portal 2' }).click()
   await expect(page.getByRole('heading', { name: '사용자 리뷰 8개' })).toBeVisible()
   await expect(page.getByText('포탈 퍼즐 설계가 영리하다. 풀었을 때 무릎을 탁 치게 된다.')).toBeVisible()
-  await expect(page.getByText(/데모용 예시 리뷰입니다/)).toBeVisible()
+  await expect(page.getByText(/예시 리뷰와 사용자가 쓴 리뷰입니다/)).toBeVisible()
 })
 
 test('signup, search, cart, mock checkout, library', async ({ page }) => {

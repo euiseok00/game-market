@@ -13,6 +13,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.function.BiFunction;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -21,7 +22,7 @@ import org.springframework.web.server.ResponseStatusException;
 import tools.jackson.core.type.TypeReference;
 import tools.jackson.databind.json.JsonMapper;
 
-/** The only place that branches on summary.mode. */
+/** Serves stored summaries, generates missing ones and refreshes ones whose reviews changed. */
 @Service
 public class SummaryService {
 
@@ -33,13 +34,11 @@ public class SummaryService {
     private final SummaryRepository summaries;
     private final SummaryLogRepository logs;
     private final JsonMapper json;
-    private final SummaryMode mode;
     private final long waitTimeoutMs;
     private final ConcurrentHashMap<Long, CompletableFuture<SummaryDto>> inFlight = new ConcurrentHashMap<>();
 
     public SummaryService(GameRepository games, ReviewSource reviews, Summarizer summarizer,
             SummaryRepository summaries, SummaryLogRepository logs, JsonMapper json,
-            @Value("${summary.mode:lazy}") SummaryMode mode,
             @Value("${summary.wait-timeout-ms:60000}") long waitTimeoutMs) {
         this.games = games;
         this.reviews = reviews;
@@ -47,33 +46,65 @@ public class SummaryService {
         this.summaries = summaries;
         this.logs = logs;
         this.json = json;
-        this.mode = mode;
         this.waitTimeoutMs = waitTimeoutMs;
     }
 
-    public SummaryMode mode() {
-        return mode;
-    }
-
+    /** Stored summary from the DB; generated and stored on the first request for a game. */
     public SummaryDto get(Long gameId) {
-        return get(gameId, mode);
+        return logged(gameId, "cache", this::storedOrGenerate);
     }
 
-    /** Explicit mode so the benchmark can compare all modes in one run. */
-    public SummaryDto get(Long gameId, SummaryMode requestMode) {
+    /** Reads reviews and calls the LLM on every call, storing nothing; the benchmark's no-cache baseline. */
+    public SummaryDto getUncached(Long gameId) {
+        return logged(gameId, "nocache", (game, timing) -> toDto(generate(game, fetch(gameId, timing), timing),
+                Instant.now()));
+    }
+
+    private SummaryDto logged(Long gameId, String label, BiFunction<Game, Timing, SummaryDto> body) {
         long start = System.nanoTime();
         Game game = games.findById(gameId).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         Timing timing = new Timing();
-        SummaryDto dto = requestMode == SummaryMode.NONE
-                ? toDto(generate(game, timing), Instant.now())
-                : storedOrGenerate(game, timing);
-        logs.save(new SummaryLog(gameId, requestMode.label(), timing.fetchMs, timing.llmMs, millisSince(start)));
+        SummaryDto dto = body.apply(game, timing);
+        logs.save(new SummaryLog(gameId, label, timing.fetchMs, timing.llmMs, millisSince(start)));
         return dto;
     }
 
-    /** Precompute without logging a request; used by the warm-up at startup. */
-    public void ensureStored(Long gameId) {
-        storedOrGenerate(games.findById(gameId).orElseThrow(), new Timing());
+    /**
+     * Regenerates a stored summary when its reviews changed (new review id or edited text). Readers keep getting
+     * the old row until the new summary is generated; a failed generation throws and leaves the old row as is.
+     *
+     * @return true if the stored summary was replaced
+     */
+    public boolean refreshIfChanged(Long gameId) {
+        if (summaries.findByGameId(gameId).isEmpty()) {
+            return false; // never requested yet; the first request generates it
+        }
+        CompletableFuture<SummaryDto> mine = new CompletableFuture<>();
+        if (inFlight.putIfAbsent(gameId, mine) != null) {
+            return false; // already being generated for this game
+        }
+        try {
+            // Re-read after taking the slot so a refresh that just finished is not repeated.
+            ReviewSummary stored = summaries.findByGameId(gameId)
+                    .orElseThrow(() -> new SummaryUnavailableException("summary of game " + gameId + " was deleted"));
+            Timing timing = new Timing();
+            Reviews current = fetch(gameId, timing);
+            String fingerprint = current.fingerprint();
+            if (fingerprint.equals(stored.getReviewFingerprint())) {
+                mine.complete(toDto(stored));
+                return false;
+            }
+            SummaryResult result = generate(stored.getGame(), current, timing).result();
+            stored.replace(json.writeValueAsString(result.pros()), json.writeValueAsString(result.cons()),
+                    result.verdict(), Instant.now(), current.source(), current.items().size(), fingerprint);
+            mine.complete(toDto(summaries.saveAndFlush(stored)));
+            return true;
+        } catch (RuntimeException e) {
+            mine.completeExceptionally(e);
+            throw e;
+        } finally {
+            inFlight.remove(gameId, mine);
+        }
     }
 
     /**
@@ -122,12 +153,13 @@ public class SummaryService {
     }
 
     private SummaryDto generateAndStore(Game game, Timing timing) {
-        Generated generated = generate(game, timing);
+        Reviews fetched = fetch(game.getId(), timing);
+        Generated generated = generate(game, fetched, timing);
         SummaryResult result = generated.result();
         try {
             ReviewSummary saved = summaries.saveAndFlush(new ReviewSummary(game,
                     json.writeValueAsString(result.pros()), json.writeValueAsString(result.cons()),
-                    result.verdict(), Instant.now(), generated.reviews().source(), generated.reviews().texts().size()));
+                    result.verdict(), Instant.now(), fetched.source(), fetched.items().size(), fetched.fingerprint()));
             return toDto(saved);
         } catch (DataIntegrityViolationException duplicate) {
             return summaries.findByGameId(game.getId()).map(this::toDto).orElseThrow(() -> duplicate);
@@ -137,10 +169,14 @@ public class SummaryService {
     private record Generated(SummaryResult result, Reviews reviews) {
     }
 
-    private Generated generate(Game game, Timing timing) {
+    private Reviews fetch(Long gameId, Timing timing) {
         long t0 = System.nanoTime();
-        Reviews fetched = reviews.fetch(game.getSteamAppId());
+        Reviews fetched = reviews.fetch(gameId);
         timing.fetchMs = millisSince(t0);
+        return fetched;
+    }
+
+    private Generated generate(Game game, Reviews fetched, Timing timing) {
         if (fetched.texts().isEmpty()) {
             throw new SummaryUnavailableException("no reviews for game " + game.getId());
         }

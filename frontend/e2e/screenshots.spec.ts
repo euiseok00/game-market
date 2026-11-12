@@ -48,7 +48,10 @@ test('capture README screenshots', async ({ page }) => {
   await page.waitForLoadState('networkidle')
   await shotUntil(page, page.locator('.summary'), '2-detail-summary.jpg')
 
-  // The reviews the summary is built from.
+  // The reviews the summary is built from, with one of the user's own so its edit button shows.
+  await page.getByRole('textbox', { name: '리뷰 작성' }).fill('빌드를 바꿔 가며 다시 도전하는 재미가 끝이 없다. 죽어도 이야기가 이어져서 덜 억울하다.')
+  await page.getByRole('button', { name: '리뷰 등록' }).click()
+  await expect(page.getByRole('button', { name: '수정' })).toBeVisible()
   await page.locator('.reviews').screenshot({ path: out('3-reviews.png') })
 
   // Cart with two games, then the library after the mock purchase.
